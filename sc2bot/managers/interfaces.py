@@ -127,7 +127,7 @@ class BuildingManager(Manager):
     async def scan(self, location):
         raise NotImplementedError("Must be overridden by subclass")
 
-    def can_train(self, unit_type):
+    async def can_train(self, unit_type):
         raise NotImplementedError("Must be overridden by subclass")
 
     def can_upgrade(self, upgrade_type):
