@@ -26,6 +26,7 @@ from sc2bot.managers.protoss_managers.army.advanced_army_manager import Advanced
 from sc2bot.managers.protoss_managers.assault.value_based_assault_manager import ValueBasedAssaultManager
 from sc2bot.managers.protoss_managers.building.simple_building_manager import SimpleBuildingManager
 from sc2bot.managers.protoss_managers.production.stalker_rush_production_manager import StalkerRushProductionManager
+from sc2bot.managers.protoss_managers.production.ml_production_manager import MLProductionManager
 from sc2bot.managers.protoss_managers.scouting.simple_scouting_manager import SimpleScoutingManager
 from sc2bot.managers.protoss_managers.worker.simple_worker_manager import SimpleWorkerManager
 
@@ -137,6 +138,7 @@ class ProtossBot(sc2.BotAI):
         self.assault_manager = ValueBasedAssaultManager(self, self.army_manager, self.worker_manager)
         self.building_manager = SimpleBuildingManager(self, self.worker_manager)
         self.production_manager = StalkerRushProductionManager(self, self.worker_manager, self.building_manager)
+        # self.production_manager = MLProductionManager(self, self.worker_manager, self.building_manager, 'C:\\Users\\Christoffer\\Documents\\StarCraft II\\Replays\\l2_n553_dTrue\\model.h5', 22)
         self.scouting_manager = SimpleScoutingManager(self, self.worker_manager, self.building_manager)
         self.managers = [self.scouting_manager, self.production_manager, self.building_manager, self.assault_manager, self.army_manager, self.worker_manager]
         self.enemy_units = {}

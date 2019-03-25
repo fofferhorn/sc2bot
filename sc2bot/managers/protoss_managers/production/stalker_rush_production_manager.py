@@ -1,4 +1,3 @@
-import random
 from sc2bot.managers.interfaces import ProductionManager
 from sc2.ids.unit_typeid import UnitTypeId
 from sc2.ids.ability_id import AbilityId
