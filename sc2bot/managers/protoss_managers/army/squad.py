@@ -21,7 +21,8 @@ class Squad:
 
     async def run(self):
         if self.defensive_ramp is None or self.bot.iteration % 50 == 0 and self.bot.townhalls.exists:
-            front_base = self.bot.townhalls.closest_to(self.bot.enemy_start_locations[0])
+            enemy_start_location = self.bot.enemy_start_locations[0]
+            front_base = self.bot.townhalls.closest_to(enemy_start_location)
             distance_between_bases = front_base.distance_to(self.bot.enemy_start_locations[0])
             closest_distance_to_home = 100000
             for ramp in self.bot.game_info.map_ramps:
