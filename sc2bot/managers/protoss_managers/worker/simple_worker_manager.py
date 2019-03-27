@@ -114,10 +114,7 @@ class SimpleWorkerManager(WorkerManager):
                         nexus = nexuses[0]
                         random_x = random.randint(-20, 20)
                         random_y = random.randint(-20, 20)
-                        print('random: (' + str(random_x) + ', ' + str(random_y) + ')')
                         near = nexus.position.offset(Point2((random_x, random_y))).to2
-                        print('near: (' + str(near.x) + ', ' + str(near.y) + ')')
-                        print('start_location: (' + str(self.bot.start_location.x) + ', ' + str(self.bot.start_location.y) + ')')
                         loc = await self.find_placement(building, near, placement_step=10)
                         if loc is not None:
                             break

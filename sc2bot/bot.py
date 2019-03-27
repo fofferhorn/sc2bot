@@ -152,7 +152,7 @@ class ProtossBot(sc2.BotAI):
         self.building_manager = SimpleBuildingManager(self, self.worker_manager)
         self.scouting_manager = SimpleScoutingManager(self, self.worker_manager, self.building_manager)
 
-        if model_name is not None:
+        if model_name is None:
             self.production_manager = StalkerRushProductionManager(self, self.worker_manager, self.building_manager)
         else:
             self.production_manager = MLProductionManager(self, self.worker_manager, self.building_manager, os.path.join(cwd, model_name), 44)
