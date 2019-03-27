@@ -20,7 +20,7 @@ class Squad:
         self.defending_position = None
 
     async def run(self):
-        if self.defensive_ramp is None or self.bot.iteration % 50 == 0 and self.bot.townhalls.exists:
+        if (self.defensive_ramp is None or self.bot.iteration % 50 == 0) and self.bot.townhalls.exists:
             enemy_start_location = self.bot.enemy_start_locations[0]
             front_base = self.bot.townhalls.closest_to(enemy_start_location)
             distance_between_bases = front_base.distance_to(self.bot.enemy_start_locations[0])
