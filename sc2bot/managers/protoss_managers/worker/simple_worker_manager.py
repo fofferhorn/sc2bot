@@ -112,8 +112,8 @@ class SimpleWorkerManager(WorkerManager):
                     count = 0
                     while(count < 1000): # Only try to find a location for the pylon 1000 times
                         nexus = nexuses[0]
-                        random_x = random.randint(-20, 20)
-                        random_y = random.randint(-20, 20)
+                        random_x = random.randint(-10, 10)
+                        random_y = random.randint(-10, 10)
                         near = nexus.position.offset(Point2((random_x, random_y))).to2
                         loc = await self.find_placement(building, near, placement_step=10)
                         if loc is not None:
