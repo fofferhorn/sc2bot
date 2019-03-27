@@ -667,7 +667,6 @@ action_to_type_mapper = {
 
     # Morph
     UnitTypeId.ARCHON: 'ability',  # MORPH_ARCHON
-    UnitTypeId.GATEWAY: 'ability',  # MORPH_GATEWAY
     UnitTypeId.WARPGATE: 'ability',  # MORPH_WARPGATE
 
     # Research

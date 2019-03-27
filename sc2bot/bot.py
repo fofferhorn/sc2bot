@@ -137,8 +137,8 @@ class ProtossBot(sc2.BotAI):
         self.army_manager = AdvancedArmyManager(self)
         self.assault_manager = ValueBasedAssaultManager(self, self.army_manager, self.worker_manager)
         self.building_manager = SimpleBuildingManager(self, self.worker_manager)
-        self.production_manager = StalkerRushProductionManager(self, self.worker_manager, self.building_manager)
-        # self.production_manager = MLProductionManager(self, self.worker_manager, self.building_manager, 'C:\\Users\\Christoffer\\Documents\\StarCraft II\\Replays\\l2_n553_dTrue\\model.h5', 22)
+        # self.production_manager = StalkerRushProductionManager(self, self.worker_manager, self.building_manager)
+        self.production_manager = MLProductionManager(self, self.worker_manager, self.building_manager, 'C:\\Users\\Christoffer\\Documents\\StarCraft II\\Replays\\l2_n439_dFalse\\modelh5', 44)
         self.scouting_manager = SimpleScoutingManager(self, self.worker_manager, self.building_manager)
         self.managers = [self.scouting_manager, self.production_manager, self.building_manager, self.assault_manager, self.army_manager, self.worker_manager]
         self.enemy_units = {}

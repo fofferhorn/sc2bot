@@ -28,17 +28,21 @@ class MLProductionManager(ProductionManager):
 
 
     async def run(self):
+        print('________________________________________________________________________________')
+
         state = self.bot.state
 
         self.observation = state.observation
 
         input_data = self.prepare_input()
 
-        print(input_data.shape)
+        print('--------------------------------------------------------------------------------')
 
         prediction = self.model.predict(input_data, verbose = 0)
 
-        await self.carry_out_prediction(prediction)
+        await self.carry_out_prediction(prediction[0])
+
+        print('________________________________________________________________________________')
         
 
     def prepare_input(self):
@@ -56,7 +60,6 @@ class MLProductionManager(ProductionManager):
         input_data += friendly_unit_list                # 44
         input_data += enemy_unit_list                   # 44
 
-        print('________________________________________________________________________________')
         print('Time step (step/seconds): ' + str(self.observation.game_loop) + '/' + str(self.observation.game_loop/22.4))
         print('Resources (minerals, vespene, food(cap, used, army, workers), idle_workers, army_count, warp_gates): ' + str(resources[0]) + ', ' + str(resources[1]) + ', (' + str(resources[2]) + ', ' + str(resources[3]) + ', ' + str(resources[4]) + ', ' + str(resources[5]) + '), ' + str(resources[6]) + ', ' + str(resources[7]) + ', ' + str(resources[8]))
         print('In progress: ' + str(self.in_progress_dic(in_progress)))
@@ -65,7 +68,9 @@ class MLProductionManager(ProductionManager):
         print('Friendly units: ' + str(self.units_dic(friendly_unit_list)))
         print('Enemy buildings: ' + str(self.buildings_dic(enemy_unit_list)))
         print('Enemy units: ' + str(self.units_dic(enemy_unit_list)))
-        print('________________________________________________________________________________')
+
+        input_data = utils.normalize(input_data, axis=-1, order=2)[0]
+
         return np.array([input_data])
 
 
@@ -185,53 +190,65 @@ class MLProductionManager(ProductionManager):
         return upgrades
 
 
-    async def transform_prediction(self, prediction):
-        prediction = np.amax(prediction)
-        prediction_action = c.protoss_macro_actions[np.argmax(prediction)]
+    async def carry_out_prediction(self, prediction):
+        prediction_action = np.argmax(prediction)
+
+        # random = np.random.random_sample()
+
+        # # Take a random action from the predictions based on the likelyhood in the output.
+        # _sum = 0.0
+        # for i in range(len(prediction)):
+        #     if _sum <= random <= _sum + prediction[i]:
+        #         print('Randomly chose action: ' + str(i))
+        #         prediction_action = i
+        #         break
+        #     _sum += prediction[i]
+
+        macro_action = None
 
         # It's a special case with the 5 different level upgrades
         if prediction_action == 27:
             if UpgradeId.PROTOSSAIRARMORSLEVEL3 in self.bot.state.upgrades:
                 return
-            if UpgradeId.PROTOSSAIRARMORSLEVEL2 in self.bot.state.upgrades:
+            elif UpgradeId.PROTOSSAIRARMORSLEVEL2 in self.bot.state.upgrades:
                 macro_action = UpgradeId.PROTOSSAIRARMORSLEVEL3
-            if UpgradeId.PROTOSSAIRARMORSLEVEL1 in self.bot.state.upgrades:
+            elif UpgradeId.PROTOSSAIRARMORSLEVEL1 in self.bot.state.upgrades:
                 macro_action = UpgradeId.PROTOSSAIRARMORSLEVEL2
             else:
                 macro_action = UpgradeId.PROTOSSAIRARMORSLEVEL1
         elif prediction_action == 28:
             if UpgradeId.PROTOSSAIRWEAPONSLEVEL3 in self.bot.state.upgrades:
                 return
-            if UpgradeId.PROTOSSAIRWEAPONSLEVEL2 in self.bot.state.upgrades:
+            elif UpgradeId.PROTOSSAIRWEAPONSLEVEL2 in self.bot.state.upgrades:
                 macro_action = UpgradeId.PROTOSSAIRWEAPONSLEVEL3
-            if UpgradeId.PROTOSSAIRWEAPONSLEVEL1 in self.bot.state.upgrades:
+            elif UpgradeId.PROTOSSAIRWEAPONSLEVEL1 in self.bot.state.upgrades:
                 macro_action = UpgradeId.PROTOSSAIRWEAPONSLEVEL2
             else: 
                 macro_action = UpgradeId.PROTOSSAIRWEAPONSLEVEL1
         elif prediction_action == 29:
             if UpgradeId.PROTOSSGROUNDARMORSLEVEL3 in self.bot.state.upgrades:
                 return
-            if UpgradeId.PROTOSSGROUNDARMORSLEVEL2 in self.bot.state.upgrades:
+            elif UpgradeId.PROTOSSGROUNDARMORSLEVEL2 in self.bot.state.upgrades:
                 macro_action = UpgradeId.PROTOSSGROUNDARMORSLEVEL3
-            if UpgradeId.PROTOSSGROUNDARMORSLEVEL1 in self.bot.state.upgrades:
+            elif UpgradeId.PROTOSSGROUNDARMORSLEVEL1 in self.bot.state.upgrades:
                 macro_action = UpgradeId.PROTOSSGROUNDARMORSLEVEL2
             else:
                 macro_action = UpgradeId.PROTOSSGROUNDARMORSLEVEL1
         elif prediction_action == 30:
             if UpgradeId.PROTOSSGROUNDWEAPONSLEVEL3 in self.bot.state.upgrades:
                 return
-            if UpgradeId.PROTOSSGROUNDWEAPONSLEVEL2 in self.bot.state.upgrades:
+            elif UpgradeId.PROTOSSGROUNDWEAPONSLEVEL2 in self.bot.state.upgrades:
                 macro_action = UpgradeId.PROTOSSGROUNDWEAPONSLEVEL3
-            if UpgradeId.PROTOSSGROUNDWEAPONSLEVEL1 in self.bot.state.upgrades:
+            elif UpgradeId.PROTOSSGROUNDWEAPONSLEVEL1 in self.bot.state.upgrades:
                 macro_action = UpgradeId.PROTOSSGROUNDWEAPONSLEVEL2
             else:
                 macro_action = UpgradeId.PROTOSSGROUNDWEAPONSLEVEL1
         elif prediction_action == 31:
             if UpgradeId.PROTOSSSHIELDSLEVEL3 in self.bot.state.upgrades:
                 return
-            if UpgradeId.PROTOSSSHIELDSLEVEL2 in self.bot.state.upgrades:
+            elif UpgradeId.PROTOSSSHIELDSLEVEL2 in self.bot.state.upgrades:
                 macro_action = UpgradeId.PROTOSSSHIELDSLEVEL3
-            if UpgradeId.PROTOSSSHIELDSLEVEL1 in self.bot.state.upgrades:
+            elif UpgradeId.PROTOSSSHIELDSLEVEL1 in self.bot.state.upgrades:
                 macro_action = UpgradeId.PROTOSSSHIELDSLEVEL2
             else:
                 macro_action = UpgradeId.PROTOSSSHIELDSLEVEL1
@@ -240,16 +257,23 @@ class MLProductionManager(ProductionManager):
 
         macro_action_type = c.action_to_type_mapper.get(macro_action)
 
-        if macro_action_type == 'upgrade':
-            if macro_action not in self.bot.state.upgrades \
-                    and await self.building_manager.can_afford(macro_action):
-                await self.building_manager.research(macro_action)
+        print('Action predicted: ' + str(macro_action) + ' of type: ' + macro_action_type)
+
+        if macro_action_type == 'upgrade' \
+                and macro_action not in self.bot.state.upgrades \
+                and self.bot.can_afford(macro_action):
+            await self.building_manager.research(macro_action)
+            return
         elif macro_action_type == 'build' \
-                and self.worker_manager.can_afford(macro_action):
+                and self.bot.can_afford(macro_action):
             await self.worker_manager.build(macro_action)
+            return
         elif macro_action_type == 'train' \
                 and await self.building_manager.can_train(macro_action) \
-                and await self.building_manager.can_afford(macro_action):
-                await self.building_manager.train(macro_action)
+                and self.bot.can_afford(macro_action):
+            await self.building_manager.train(macro_action)
+            return
         elif macro_action_type == 'ability':
+            return
+        else:
             return

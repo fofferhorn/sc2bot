@@ -14,5 +14,6 @@ class SimpleScoutingManager(ScoutingManager):
         if self.bot.iteration % 50 == 0 and self.bot.known_enemy_structures.amount == 0 and self.bot.units(UnitTypeId.PYLON):
             target = self.bot.known_enemy_structures.random_or(self.bot.enemy_start_locations[0]).position
             # print("ScoutingManager: scouting ", target)
-            await self.worker_manager.scout(target)
+            for location in [target] + list(self.bot.expansion_locations.keys()):
+                await self.worker_manager.scout(target)
 

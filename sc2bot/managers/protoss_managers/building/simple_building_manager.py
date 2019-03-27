@@ -103,7 +103,7 @@ class SimpleBuildingManager(BuildingManager):
     async def run(self):
         pass
 
-    async def train(self, unit, max_queue=5):
+    async def train(self, unit, max_queue=1):
         print("BuildingManager: training ", unit)
         if self.bot.can_afford(unit):
             trainers = self.trained_at[unit]
@@ -120,8 +120,6 @@ class SimpleBuildingManager(BuildingManager):
                             return 
                         self.actions.append(warpgate.warp_in(UnitTypeId.STALKER, placement))
 
-            print('Training ' + str(unit) + ' using Gateway')
-
             for trainer in trainers:
                 buildings = sorted(self.bot.units(trainer).ready, key=lambda x: len(x.orders))
                 for building in buildings:
@@ -134,11 +132,15 @@ class SimpleBuildingManager(BuildingManager):
                     return
 
     async def research(self, upgrade):
-        for building in self.bot.units(self.researched_at[upgrade]).ready:
-            self.actions.append(building.research(upgrade))
-            return
+        buildings = self.bot.units(self.researched_at[upgrade]).ready
+        for i in range(len(buildings)):
+            building = buildings[i]
+            if len(building.orders) == 0 or i == len(buildings) - 1:
+                print("BuildingManager: researching ", upgrade)
+                self.actions.append(building.research(upgrade))
+                return
 
-    async def can_train(self, unit_type, must_be_ready=True, must_afford=True, max_queue=5):
+    async def can_train(self, unit_type, must_be_ready=True, must_afford=True, max_queue=1):
         # Requirements not satisfied
         if not self.unit_requirements_satisfied(unit_type):
             print('Requirements not satisfied for ' + str(unit_type))

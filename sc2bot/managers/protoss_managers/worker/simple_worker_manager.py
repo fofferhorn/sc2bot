@@ -96,25 +96,48 @@ class SimpleWorkerManager(WorkerManager):
         if not add_new:
             return
 
-        print("WorkerManager: building ", building)
+        loc = None
+
         w = self._get_builder()
         if w:  # if worker found
             assert self.scouting_worker is None or w.tag != self.scouting_worker.tag
             if location is None:
                 if building == UnitTypeId.NEXUS:
-                    # loc = await self.bot.find_placement(building, w.position, placement_step=3)
                     loc = await self.bot.get_next_expansion()
                 elif building == UnitTypeId.ASSIMILATOR:
                     loc = self.get_next_geyser()
                 elif building == UnitTypeId.PYLON:
-                    loc = await self.find_placement(building, self.bot.start_location, placement_step=2)
+                    nexuses = self.bot.units(UnitTypeId.NEXUS)
+                    random.shuffle(nexuses)
+                    count = 0
+                    while(count < 1000): # Only try to find a location for the pylon 1000 times
+                        nexus = nexuses[0]
+                        random_x = random.randint(-20, 20)
+                        random_y = random.randint(-20, 20)
+                        print('random: (' + str(random_x) + ', ' + str(random_y) + ')')
+                        near = nexus.position.offset(Point2((random_x, random_y))).to2
+                        print('near: (' + str(near.x) + ', ' + str(near.y) + ')')
+                        print('start_location: (' + str(self.bot.start_location.x) + ', ' + str(self.bot.start_location.y) + ')')
+                        loc = await self.find_placement(building, near, placement_step=10)
+                        if loc is not None:
+                            break
+                        count += 1
                 else:
-                    loc = await self.find_placement(building, self.bot.units.structure[0].position, placement_step=7)
-
+                    # Protoss buildings need to be placed near a pylon for power
+                    pylons = self.bot.units(UnitTypeId.PYLON).ready
+                    random.shuffle(pylons)
+                    for pylon in pylons:
+                        pylon_loc = pylon.position
+                        loc = await self.find_placement(building, pylon_loc, placement_step=2)
+                        if loc is not None:
+                            break
             else:
                 loc = location
 
-            if loc:  # if a placement location was found
+            if loc is None:
+                print('can\'t find location for building ' + str(building))
+            else:  # if a placement location was found
+                print("WorkerManager: building ", building)
                 # build exactly on that location
                 self.build_jobs.append(BuildJob(w, building, loc))
 
@@ -269,7 +292,7 @@ class SimpleWorkerManager(WorkerManager):
                 return True
         return False
 
-    async def find_placement(self, building: UnitTypeId, near: Union[Unit, Point2, Point3], max_distance: int=20, random_alternative: bool=True, placement_step: int=2) -> Optional[Point2]:
+    async def find_placement(self, building: UnitTypeId, near: Union[Unit, Point2, Point3], max_distance: int=7, random_alternative: bool=True, placement_step: int=2) -> Optional[Point2]:
         """Finds a placement location for building."""
 
         assert isinstance(building, (AbilityId, UnitTypeId))
@@ -295,6 +318,7 @@ class SimpleWorkerManager(WorkerManager):
                     [(distance, int(dy/2)) for dy in range(-distance, distance + 1, placement_step)]
             )]
             possible_positions = [pos for pos in possible_positions if pos.x != near.x]
+
 
             res = await self.bot.client().query_building_placement(building, possible_positions)
             possible = [p for r, p in zip(res, possible_positions) if r == ActionResult.Success]
