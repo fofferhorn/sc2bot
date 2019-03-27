@@ -9,6 +9,18 @@ import sc2
 from sc2 import Race, Difficulty
 from sc2.player import Bot, Computer
 
+import os
+
+from absl import app
+from absl import flags
+import sys
+
+FLAGS = flags.FLAGS
+
+flags.DEFINE_string(name = 'model_name', default = None, help = 'The name of a trained neural network model to use as a production manager.')
+
+FLAGS(sys.argv)
+
 # from sc2bot.managers.terran_managers.army.simple_army_manager import SimpleArmyManager
 # from sc2bot.managers.terran_managers.army.advanced_army_manager import AdvancedArmyManager
 # from sc2bot.managers.terran_managers.building.simple_building_manager import SimpleBuildingManager
@@ -130,16 +142,21 @@ from sc2bot.managers.protoss_managers.worker.simple_worker_manager import Simple
 
 
 class ProtossBot(sc2.BotAI):
-    def __init__(self):
+    def __init__(self, model_name = None):
         super().__init__()
         self.iteration = 0
+        cwd = os.getcwd()
         self.worker_manager = SimpleWorkerManager(self)
         self.army_manager = AdvancedArmyManager(self)
         self.assault_manager = ValueBasedAssaultManager(self, self.army_manager, self.worker_manager)
         self.building_manager = SimpleBuildingManager(self, self.worker_manager)
-        # self.production_manager = StalkerRushProductionManager(self, self.worker_manager, self.building_manager)
-        self.production_manager = MLProductionManager(self, self.worker_manager, self.building_manager, 'C:\\Users\\Christoffer\\Documents\\StarCraft II\\Replays\\l2_n439_dFalse\\modelh5', 44)
         self.scouting_manager = SimpleScoutingManager(self, self.worker_manager, self.building_manager)
+
+        if model_name is not None:
+            self.production_manager = StalkerRushProductionManager(self, self.worker_manager, self.building_manager)
+        else:
+            self.production_manager = MLProductionManager(self, self.worker_manager, self.building_manager, os.path.join(cwd, model_name), 44)
+
         self.managers = [self.scouting_manager, self.production_manager, self.building_manager, self.assault_manager, self.army_manager, self.worker_manager]
         self.enemy_units = {}
         self.own_units = {}
@@ -229,14 +246,14 @@ class ProtossBot(sc2.BotAI):
             await manager.on_building_construction_complete(unit)
 
 
-def main():
+def main(argv):
     replay_name = f"replays/sc2bot_{int(time.time())}.sc2replay"
     # Multiple difficulties for enemy bots available https://github.com/Blizzard/s2client-api/blob/ce2b3c5ac5d0c85ede96cef38ee7ee55714eeb2f/include/sc2api/sc2_gametypes.h#L30
     sc2.run_game(sc2.maps.get("(2)CatalystLE"),
-                 players=[Bot(Race.Protoss, ProtossBot()), Computer(Race.Protoss, Difficulty.Medium)],
+                 players=[Bot(Race.Protoss, ProtossBot(FLAGS.model_name)), Computer(Race.Protoss, Difficulty.Medium)],
                  save_replay_as=replay_name,
                  realtime=False)
 
 
 if __name__ == '__main__':
-    main()
+    app.run(main)
