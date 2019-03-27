@@ -18,6 +18,7 @@ import sys
 FLAGS = flags.FLAGS
 
 flags.DEFINE_string(name = 'model_name', default = None, help = 'The name of a trained neural network model to use as a production manager.')
+flags.DEFINE_string(name = 'maxes_path', default = 'maxes.txt', help = 'The name of the files that contains the max values to be used for min-max normalization.')
 
 FLAGS(sys.argv)
 
@@ -155,7 +156,14 @@ class ProtossBot(sc2.BotAI):
         if model_name is None:
             self.production_manager = StalkerRushProductionManager(self, self.worker_manager, self.building_manager)
         else:
-            self.production_manager = MLProductionManager(self, self.worker_manager, self.building_manager, os.path.join(cwd, model_name), 44)
+            self.production_manager = MLProductionManager(
+                self, 
+                self.worker_manager, 
+                self.building_manager, 
+                os.path.join(cwd, model_name), 
+                FLAGS.maxes_path, 
+                44
+            )
 
         self.managers = [self.scouting_manager, self.production_manager, self.building_manager, self.assault_manager, self.army_manager, self.worker_manager]
         self.enemy_units = {}

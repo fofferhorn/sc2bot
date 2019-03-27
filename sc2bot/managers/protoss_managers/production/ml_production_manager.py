@@ -4,6 +4,9 @@ from sc2.ids.ability_id import AbilityId
 from sc2.ids.upgrade_id import UpgradeId
 import sc2bot.constants as c
 
+import math
+import numpy as np
+
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import metrics, optimizers, layers, losses, models, utils
@@ -17,12 +20,27 @@ def top_3_categorical_accuracy(y_true, y_pred):
 def top_1_categorical_accuracy(y_true, y_pred):
     return metrics.top_k_categorical_accuracy(y_true, y_pred, k=1)
 
+def min_max_norm(data, maxes):
+    norm_data = []
+    for i in range(len(data)):
+        if maxes[i] == 0:
+            norm_data.append(0)
+        else:
+            norm_value = data[i]/maxes[i]
+            if math.isnan(norm_value):
+                norm_data.append(0)
+            else:
+                norm_data.append(norm_value)
+
+    return norm_data
+
 class MLProductionManager(ProductionManager):
-    def __init__(self, bot, worker_manager, building_manager, model_name, request_frequency):
+    def __init__(self, bot, worker_manager, building_manager, model_name, maxes_path, request_frequency):
         super().__init__(bot, worker_manager, building_manager)
         self.next_iteration = 0
         self.model = models.load_model(model_name, {"top_1_categorical_accuracy": top_1_categorical_accuracy, "top_3_categorical_accuracy": top_3_categorical_accuracy})
         self.observation = None
+        self.maxes = np.loadtxt(maxes_path)
 
         print("Production manager ready")
 
@@ -69,7 +87,7 @@ class MLProductionManager(ProductionManager):
         print('Enemy buildings: ' + str(self.buildings_dic(enemy_unit_list)))
         print('Enemy units: ' + str(self.units_dic(enemy_unit_list)))
 
-        input_data = utils.normalize(input_data, axis=-1, order=2)[0]
+        input_data = min_max_norm(input_data, self.maxes)
 
         return np.array([input_data])
 
