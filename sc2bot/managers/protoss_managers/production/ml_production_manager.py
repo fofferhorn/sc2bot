@@ -32,7 +32,7 @@ class MLProductionManager(ProductionManager):
 
 
     async def run(self):
-        print('________________________________________________________________________________')
+        # print('________________________________________________________________________________')
 
         state = self.bot.state
 
@@ -40,13 +40,13 @@ class MLProductionManager(ProductionManager):
 
         input_data = self.prepare_input()
 
-        print('--------------------------------------------------------------------------------')
+        # print('--------------------------------------------------------------------------------')
 
         prediction = self.model.predict(input_data, verbose = 0)
 
         await self.carry_out_prediction(prediction[0])
 
-        print('________________________________________________________________________________')
+        # print('________________________________________________________________________________')
         
 
     def prepare_input(self):
@@ -64,14 +64,14 @@ class MLProductionManager(ProductionManager):
         input_data += friendly_unit_list                # 44
         input_data += enemy_unit_list                   # 44
 
-        print('Time step (step/seconds): ' + str(self.observation.game_loop) + '/' + str(self.observation.game_loop/22.4))
-        print('Resources (minerals, vespene, food(cap, used, army, workers), idle_workers, army_count, warp_gates): ' + str(resources[0]) + ', ' + str(resources[1]) + ', (' + str(resources[2]) + ', ' + str(resources[3]) + ', ' + str(resources[4]) + ', ' + str(resources[5]) + '), ' + str(resources[6]) + ', ' + str(resources[7]) + ', ' + str(resources[8]))
-        print('In progress: ' + str(self.in_progress_dic(in_progress)))
-        print('Upgrades: ' + str(self.upgrades_dic(upgrades)))
-        print('Friendly buildings: ' + str(self.buildings_dic(friendly_unit_list)))
-        print('Friendly units: ' + str(self.units_dic(friendly_unit_list)))
-        print('Enemy buildings: ' + str(self.buildings_dic(enemy_unit_list)))
-        print('Enemy units: ' + str(self.units_dic(enemy_unit_list)))
+        # print('Time step (step/seconds): ' + str(self.observation.game_loop) + '/' + str(self.observation.game_loop/22.4))
+        # print('Resources (minerals, vespene, food(cap, used, army, workers), idle_workers, army_count, warp_gates): ' + str(resources[0]) + ', ' + str(resources[1]) + ', (' + str(resources[2]) + ', ' + str(resources[3]) + ', ' + str(resources[4]) + ', ' + str(resources[5]) + '), ' + str(resources[6]) + ', ' + str(resources[7]) + ', ' + str(resources[8]))
+        # print('In progress: ' + str(self.in_progress_dic(in_progress)))
+        # print('Upgrades: ' + str(self.upgrades_dic(upgrades)))
+        # print('Friendly buildings: ' + str(self.buildings_dic(friendly_unit_list)))
+        # print('Friendly units: ' + str(self.units_dic(friendly_unit_list)))
+        # print('Enemy buildings: ' + str(self.buildings_dic(enemy_unit_list)))
+        # print('Enemy units: ' + str(self.units_dic(enemy_unit_list)))
 
         input_data = normalize(input_data, axis=-1, order=2)
         # input_data = min_max_norm(input_data, self.maxes)
@@ -262,7 +262,7 @@ class MLProductionManager(ProductionManager):
 
         macro_action_type = c.action_to_type_mapper.get(macro_action)
 
-        print('Action predicted: ' + str(macro_action) + ' of type: ' + macro_action_type)
+        # print('Action predicted: ' + str(macro_action) + ' of type: ' + macro_action_type)
 
         if macro_action_type == 'upgrade' \
                 and macro_action not in self.bot.state.upgrades \
