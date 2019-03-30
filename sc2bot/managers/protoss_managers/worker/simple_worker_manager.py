@@ -131,12 +131,12 @@ class SimpleWorkerManager(WorkerManager):
             else:
                 loc = location
 
-            if loc is None:
-                # print('can\'t find location for building ' + str(building))
-            else:  # if a placement location was found
-                # print("WorkerManager: building ", building)
-                # build exactly on that location
-                self.build_jobs.append(BuildJob(w, building, loc))
+            # if loc is None:
+            #     print('can\'t find location for building ' + str(building))
+            # else:  # if a placement location was found
+            #     print("WorkerManager: building ", building)
+            #     # build exactly on that location
+            self.build_jobs.append(BuildJob(w, building, loc))
 
     def get_next_geyser(self):
         for th in self.bot.townhalls:
