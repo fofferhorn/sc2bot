@@ -36,13 +36,13 @@ FLAGS(sys.argv)
 # from sc2bot.managers.terran_managers.assault.value_based_assault_manager import ValueBasedAssaultManager
 # from sc2bot.managers.terran_managers.worker.simple_worker_manager import SimpleWorkerManager
 
-from sc2bot.managers.protoss_managers.army.advanced_army_manager import AdvancedArmyManager
-from sc2bot.managers.protoss_managers.assault.value_based_assault_manager import ValueBasedAssaultManager
-from sc2bot.managers.protoss_managers.building.simple_building_manager import SimpleBuildingManager
-from sc2bot.managers.protoss_managers.production.stalker_rush_production_manager import StalkerRushProductionManager
-from sc2bot.managers.protoss_managers.production.ml_production_manager import MLProductionManager
-from sc2bot.managers.protoss_managers.scouting.simple_scouting_manager import SimpleScoutingManager
-from sc2bot.managers.protoss_managers.worker.simple_worker_manager import SimpleWorkerManager
+import sc2bot.managers.protoss_managers.army.advanced_army_manager as advanced_army_manager
+import sc2bot.managers.protoss_managers.assault.value_based_assault_manager as value_based_assault_manager
+import sc2bot.managers.protoss_managers.building.simple_building_manager as simple_building_manager
+import sc2bot.managers.protoss_managers.production.stalker_rush_production_manager as stalker_rush_production_manager
+import sc2bot.managers.protoss_managers.production.ml_production_manager as ml_production_manager
+import sc2bot.managers.protoss_managers.scouting.simple_scouting_manager as simple_scouting_manager
+import sc2bot.managers.protoss_managers.worker.simple_worker_manager as simple_worker_manager
 
 # class TerranBot(sc2.BotAI):
 
@@ -147,16 +147,16 @@ class ProtossBot(sc2.BotAI):
     def __init__(self, model_name = None):
         super().__init__()
         self.iteration = 0
-        self.worker_manager = SimpleWorkerManager(self)
-        self.army_manager = AdvancedArmyManager(self)
-        self.assault_manager = ValueBasedAssaultManager(self, self.army_manager, self.worker_manager)
-        self.building_manager = SimpleBuildingManager(self, self.worker_manager)
-        self.scouting_manager = SimpleScoutingManager(self, self.worker_manager, self.building_manager)
+        self.worker_manager = simple_worker_manager.SimpleWorkerManager(self)
+        self.army_manager = advanced_army_manager.AdvancedArmyManager(self)
+        self.assault_manager = value_based_assault_manager.ValueBasedAssaultManager(self, self.army_manager, self.worker_manager)
+        self.building_manager = simple_building_manager.SimpleBuildingManager(self, self.worker_manager)
+        self.scouting_manager = simple_scouting_manager.SimpleScoutingManager(self, self.worker_manager, self.building_manager)
 
         if model_name is None:
-            self.production_manager = StalkerRushProductionManager(self, self.worker_manager, self.building_manager)
+            self.production_manager = stalker_rush_production_manager.StalkerRushProductionManager(self, self.worker_manager, self.building_manager)
         else:
-            self.production_manager = MLProductionManager(
+            self.production_manager = ml_production_manager.MLProductionManager(
                 self, 
                 self.worker_manager, 
                 self.building_manager, 
@@ -263,15 +263,13 @@ def main(argv):
 
     player_config = [Bot(Race.Protoss, ProtossBot(FLAGS.model_name)), Computer(Race.Protoss, Difficulty.Medium)]
 
-    games_played = 1
-
     gen = sc2.main._host_game_iter(
         sc2.maps.get("(2)CatalystLE"),
         player_config,
         realtime=False
     )
 
-    games_played += 1
+    games_played = 1
 
     while True:
         print('--------------------------------------')
@@ -280,13 +278,13 @@ def main(argv):
 
         r = next(gen)
 
-        reload(sc2bot.managers.protoss_managers.army.advanced_army_manager)
-        reload(sc2bot.managers.protoss_managers.assault.value_based_assault_manager)
-        reload(sc2bot.managers.protoss_managers.building.simple_building_manager)
-        reload(sc2bot.managers.protoss_managers.production.stalker_rush_production_manager)
-        reload(sc2bot.managers.protoss_managers.production.ml_production_manager)
-        reload(sc2bot.managers.protoss_managers.scouting.simple_scouting_manager)
-        reload(sc2bot.managers.protoss_managers.worker.simple_worker_manager)
+        reload(advanced_army_manager)
+        reload(value_based_assault_manager)
+        reload(simple_building_manager)
+        reload(stalker_rush_production_manager)
+        reload(ml_production_manager)
+        reload(simple_scouting_manager)
+        reload(simple_worker_manager)
         player_config[0].ai = ProtossBot(FLAGS.model_name)
         gen.send(player_config)
 
