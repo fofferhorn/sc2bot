@@ -104,19 +104,19 @@ class SimpleBuildingManager(BuildingManager):
         pass
 
     async def train(self, unit, max_queue=1):
-        print("BuildingManager: training ", unit)
+        # print("BuildingManager: training ", unit)
         if self.bot.can_afford(unit):
             trainers = self.trained_at[unit]
 
             if UnitTypeId.WARPGATE in trainers and self.bot.units(UnitTypeId.WARPGATE).ready.exists:
-                print('Training ' + str(unit) + ' using Warpgate')
+                # print('Training ' + str(unit) + ' using Warpgate')
                 for warpgate in self.bot.units(UnitTypeId.WARPGATE):
                     abilities = await self.bot.get_available_abilities(warpgate)
                     if AbilityId.WARPGATETRAIN_ZEALOT in abilities:
                         pos = choice(self.bot.units(UnitTypeId.PYLON)).position.to2.random_on_distance(4)
                         placement = await self.bot.find_placement(AbilityId.WARPGATETRAIN_STALKER, pos, placement_step=1)
                         if placement is None:
-                            print('can\'t place unit')
+                            # print('can\'t place unit')
                             return 
                         self.actions.append(warpgate.warp_in(UnitTypeId.STALKER, placement))
 
@@ -136,19 +136,19 @@ class SimpleBuildingManager(BuildingManager):
         for i in range(len(buildings)):
             building = buildings[i]
             if len(building.orders) == 0 or i == len(buildings) - 1:
-                print("BuildingManager: researching ", upgrade)
+                # print("BuildingManager: researching ", upgrade)
                 self.actions.append(building.research(upgrade))
                 return
 
     async def can_train(self, unit_type, must_be_ready=True, must_afford=True, max_queue=1):
         # Requirements not satisfied
         if not self.unit_requirements_satisfied(unit_type):
-            print('Requirements not satisfied for ' + str(unit_type))
+            # print('Requirements not satisfied for ' + str(unit_type))
             return False
 
         # Can't afford
         if must_afford and not self.bot.can_afford(unit_type):
-            print('Not enough resources for ' + str(unit_type))
+            # print('Not enough resources for ' + str(unit_type))
             return False
 
         # Can an archon be morphed?
