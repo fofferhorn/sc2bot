@@ -73,7 +73,7 @@ class MLProductionManager(ProductionManager):
         print('Enemy buildings: ' + str(self.buildings_dic(enemy_unit_list)))
         print('Enemy units: ' + str(self.units_dic(enemy_unit_list)))
 
-        input_data = keras.normalize(input_data, axis=-1, order=2)
+        input_data = normalize(input_data, axis=-1, order=2)
         # input_data = min_max_norm(input_data, self.maxes)
 
         return np.array([input_data])
