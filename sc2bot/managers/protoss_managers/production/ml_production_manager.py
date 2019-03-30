@@ -76,7 +76,7 @@ class MLProductionManager(ProductionManager):
         input_data = normalize(input_data, axis=-1, order=2)
         # input_data = min_max_norm(input_data, self.maxes)
 
-        return np.array([input_data])
+        return np.array(input_data)
 
 
     def in_progress_dic(self, in_progress):
