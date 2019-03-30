@@ -14,6 +14,7 @@ import os
 from absl import app
 from absl import flags
 import sys
+from importlib import reload
 
 FLAGS = flags.FLAGS
 
@@ -256,11 +257,40 @@ class ProtossBot(sc2.BotAI):
 
 def main(argv):
     replay_name = f"replays/sc2bot_{int(time.time())}.sc2replay"
-    # Multiple difficulties for enemy bots available https://github.com/Blizzard/s2client-api/blob/ce2b3c5ac5d0c85ede96cef38ee7ee55714eeb2f/include/sc2api/sc2_gametypes.h#L30
-    sc2.run_game(sc2.maps.get("(2)CatalystLE"),
-                 players=[Bot(Race.Protoss, ProtossBot(FLAGS.model_name)), Computer(Race.Protoss, Difficulty.Medium)],
-                 save_replay_as=replay_name,
-                 realtime=False)
+    # # Multiple difficulties for enemy bots available https://github.com/Blizzard/s2client-api/blob/ce2b3c5ac5d0c85ede96cef38ee7ee55714eeb2f/include/sc2api/sc2_gametypes.h#L30
+    # sc2.run_game(sc2.maps.get("(2)CatalystLE"),
+    #              players=[Bot(Race.Protoss, ProtossBot(FLAGS.model_name)), Computer(Race.Protoss, Difficulty.Medium)],
+    #              save_replay_as=replay_name,
+    #              realtime=False)
+
+    player_config = [Bot(Race.Protoss, ProtossBot(FLAGS.model_name)), Computer(Race.Protoss, Difficulty.Medium)]
+
+    gen = sc2.main._host_game_iter(
+        sc2.maps.get("(2)CatalystLE"),
+        player_config,
+        realtime=False
+    )
+
+    games_played = 1
+
+    while True:
+        r = next(gen)
+
+        print('--------------------------------------')
+        print('Starting game number ' + str(games_played))
+        print('--------------------------------------')
+
+        reload(AdvancedArmyManager)
+        reload(ValueBasedAssaultManager)
+        reload(SimpleBuildingManager)
+        reload(StalkerRushProductionManager)
+        reload(MLProductionManager)
+        reload(SimpleScoutingManager)
+        reload(SimpleWorkerManager)
+        player_config[0].ai = ProtossBot(FLAGS.model_name)
+        gen.send(player_config)
+
+        games_played += 1
 
 
 if __name__ == '__main__':
