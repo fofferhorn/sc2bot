@@ -147,7 +147,6 @@ class ProtossBot(sc2.BotAI):
     def __init__(self, model_name = None):
         super().__init__()
         self.iteration = 0
-        cwd = os.getcwd()
         self.worker_manager = SimpleWorkerManager(self)
         self.army_manager = AdvancedArmyManager(self)
         self.assault_manager = ValueBasedAssaultManager(self, self.army_manager, self.worker_manager)
@@ -161,8 +160,7 @@ class ProtossBot(sc2.BotAI):
                 self, 
                 self.worker_manager, 
                 self.building_manager, 
-                os.path.join(cwd, model_name), 
-                FLAGS.maxes_path, 
+                model_name, 
                 44
             )
 
