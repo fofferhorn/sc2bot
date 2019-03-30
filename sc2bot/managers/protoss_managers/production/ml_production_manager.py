@@ -9,6 +9,7 @@ import numpy as np
 
 import tensorflow as tf
 from tensorflow import keras
+from tensorflow.keras.utils import normalize
 from tensorflow.keras import metrics, optimizers, layers, losses, models, utils
 from tensorflow.keras import backend as K
 
@@ -20,27 +21,12 @@ def top_3_categorical_accuracy(y_true, y_pred):
 def top_1_categorical_accuracy(y_true, y_pred):
     return metrics.top_k_categorical_accuracy(y_true, y_pred, k=1)
 
-def min_max_norm(data, maxes):
-    norm_data = []
-    for i in range(len(data)):
-        if maxes[i] == 0:
-            norm_data.append(0)
-        else:
-            norm_value = data[i]/maxes[i]
-            if math.isnan(norm_value):
-                norm_data.append(0)
-            else:
-                norm_data.append(norm_value)
-
-    return norm_data
-
 class MLProductionManager(ProductionManager):
-    def __init__(self, bot, worker_manager, building_manager, model_name, maxes_path, request_frequency):
+    def __init__(self, bot, worker_manager, building_manager, model_name, request_frequency):
         super().__init__(bot, worker_manager, building_manager)
         self.next_iteration = 0
         self.model = models.load_model(model_name, {"top_1_categorical_accuracy": top_1_categorical_accuracy, "top_3_categorical_accuracy": top_3_categorical_accuracy})
         self.observation = None
-        self.maxes = np.loadtxt(maxes_path)
 
         print("Production manager ready")
 
@@ -87,7 +73,7 @@ class MLProductionManager(ProductionManager):
         print('Enemy buildings: ' + str(self.buildings_dic(enemy_unit_list)))
         print('Enemy units: ' + str(self.units_dic(enemy_unit_list)))
 
-        input_data = normalize(input_data, axis=-1, order=2)
+        input_data = keras.normalize(input_data, axis=-1, order=2)
         # input_data = min_max_norm(input_data, self.maxes)
 
         return np.array([input_data])
