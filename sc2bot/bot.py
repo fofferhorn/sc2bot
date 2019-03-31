@@ -271,10 +271,12 @@ def main(argv):
         
         replay_name = f"replays/sc2bot_{int(time.time())}.sc2replay"
 
-        sc2.run_game(sc2.maps.get("(2)CatalystLE"),
+        result = sc2.run_game(sc2.maps.get("(2)CatalystLE"),
                      players=player_config,
                      save_replay_as=replay_name,
                      realtime=False)
+
+        print(result)
 
         reload(advanced_army_manager)
         reload(value_based_assault_manager)
