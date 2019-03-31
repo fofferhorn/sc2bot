@@ -266,6 +266,7 @@ def main(argv):
     gen = sc2.main._host_game_iter(
         sc2.maps.get("(2)CatalystLE"),
         player_config,
+        save_replay_as=replay_name,
         realtime=False
     )
 
