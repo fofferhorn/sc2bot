@@ -263,6 +263,8 @@ def main(argv):
     player_config = [Bot(Race.Protoss, ProtossBot(FLAGS.model_name)), Computer(Race.Protoss, Difficulty.Medium)]
 
     games_played = 1
+    games_won = 0
+    games_lost = 0
 
     while True:
         print('--------------------------------------')
@@ -277,6 +279,15 @@ def main(argv):
                      realtime=False)
 
         print(result)
+
+        if str(result) == 'Result.Win':
+            print('Won game ' + str(games_played))
+            games_won += 1
+        if str(result) == 'Result.Defeat':
+            print('Lost game ' + str(games_played))
+            games_lost += 1
+
+        print('Won ' + str(games_won) + ' out of ' + str(games_played) + ' games played.')
 
         reload(advanced_army_manager)
         reload(value_based_assault_manager)
